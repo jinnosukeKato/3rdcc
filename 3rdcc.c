@@ -2,11 +2,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void error(char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  exit(1);
+}
+
 void put_asm_global(const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
   vprintf(fmt, args);
-  va_end(args);
   printf("\n");
 }
 
@@ -15,13 +22,12 @@ void put_asm(const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
   vprintf(fmt, args);
-  va_end(args);
   printf("\n");
 }
 
 int main(int argc, char **argv) {
   if (argc != 2) {
-    fprintf(stderr, "引数の個数が正しくありません\n");
+    error("引数の個数が正しくありません");
     return 1;
   }
 
@@ -46,7 +52,7 @@ int main(int argc, char **argv) {
       continue;
     }
 
-    fprintf(stderr, "予期しない文字です: '%c'\n", *p);
+    error("予期しない文字です: '%c'", *p);
     return 1;
   }
 
