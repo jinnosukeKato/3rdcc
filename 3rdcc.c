@@ -13,6 +13,21 @@ void error(char *fmt, ...) {
   exit(1);
 }
 
+char *user_input;
+
+void error_at(char *loc, char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+
+  int pos = loc - user_input;
+  fprintf(stderr, "%s\n", user_input);
+  fprintf(stderr, "%*s", pos, " ");
+  fprintf(stderr, "^ ");
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  exit(1);
+}
+
 typedef enum {
   TK_RESERVED,  // 記号
   TK_NUM,       // 整数
@@ -40,13 +55,13 @@ bool consume(char op) {
 
 void expect(char op) {
   if (token->kind != TK_RESERVED || token->str[0] != op)
-    error("'%c'ではありません", op);
+    error_at(token->str, "'%c'ではありません", op);
 
   token = token->next;
 }
 
 int expect_number() {
-  if (token->kind != TK_NUM) error("数値ではありません");
+  if (token->kind != TK_NUM) error_at(token->str, "数値ではありません");
 
   int val = token->val;
   token = token->next;
@@ -86,7 +101,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    error("トークナイズできない入力: %s", p);
+    error_at(p, "トークナイズできない入力: %s", p);
   }
 
   new_token(TK_EOF, cur, p);
@@ -114,6 +129,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  user_input = argv[1];
   token = tokenize(argv[1]);
 
   put_asm_global(".intel_syntax noprefix");
