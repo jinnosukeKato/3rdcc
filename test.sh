@@ -26,5 +26,7 @@ assert 9 "81/9"
 assert 5 "28/5"
 assert 10 "2 +8 / 1"
 assert 47 "(1+3)*12-1"
+assert 39 "+39"
+assert 22 "-11*-2"
 
 echo OK
