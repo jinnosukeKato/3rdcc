@@ -16,6 +16,11 @@ assert() {
   fi
 }
 
+assert 1 "1 != 0"
+assert 0 "2 * 5 != 10"
+assert 1 "1 <= 1"
+assert 0 "2 <= 1"
+assert 1 "5 > 0"
 assert 0 0
 assert 42 42
 assert 21 "5+20-4"

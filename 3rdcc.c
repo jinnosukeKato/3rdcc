@@ -52,7 +52,10 @@ typedef enum {
   ND_SUB,
   ND_MUL,
   ND_DIV,
-  ND_EQ,
+  ND_EQ, // ==
+  ND_NQ, // !=
+  ND_LT, // <
+  ND_LE, // <=
   ND_NUM,
 } NodeKind;
 
@@ -123,6 +126,8 @@ Node *equality() {
   while (1) {
     if (consume("==")) {
       node = new_node(ND_EQ, node, relational());
+    } else if (consume("!=")) {
+      node = new_node(ND_NQ, node, relational());
     } else {
       return node;
     }
@@ -131,8 +136,19 @@ Node *equality() {
 
 Node *relational() {
   Node *node = add();
-
-  return node;
+  while (1) {
+    if (consume("<=")) {
+      node = new_node(ND_LE, node, add());
+    } else if (consume(">=")) {
+      node = new_node(ND_LE, add(), node);
+    } else if (consume("<")) {
+      node = new_node(ND_LT, node, add());
+    } else if (consume(">")) {
+      node = new_node(ND_LT, add(), node);
+    } else {
+      return node;
+    }
+  }
 }
 
 Node *add() {
@@ -228,6 +244,21 @@ void gen(Node *node) {
     put_asm("sete al");
     put_asm("movzb rax, al");
     break;
+  case ND_NQ:
+    put_asm("cmp rax, rdi");
+    put_asm("setne al");
+    put_asm("movzb rax, al");
+    break;
+  case ND_LT:
+    put_asm("cmp rax, rdi");
+    put_asm("setl al");
+    put_asm("movzb rax, al");
+    break;
+  case ND_LE:
+    put_asm("cmp rax, rdi");
+    put_asm("setle al");
+    put_asm("movzb rax, al");
+    break;
   }
 
   put_asm("push rax");
@@ -263,7 +294,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (strchr("+-*/()", *p)) {
+    if (strchr("+-*/()<>", *p)) {
       cur = new_token(TK_RESERVED, cur, p++, 1);
       continue;
     }
