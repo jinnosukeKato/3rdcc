@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "*.ino": "cpp",
+    "*.v": "systemverilog",
+    "3rdcc.h": "c",
+    "stdlib.h": "c"
+  }
+}
